@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "33039489228",
+    "project_id": "notes-twoa",
+    "storage_bucket": "notes-twoa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:33039489228:android:b1f37b032012a002ea8a69",
+        "android_client_info": {
+          "package_name": "com.example.nothing_notes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAdNpwt2Zz8v6W5ABrggnCTtOFa-z0rJE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
