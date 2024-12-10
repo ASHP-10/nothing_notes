@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:nothing_notes/constants/routes.dart';
 import 'package:nothing_notes/firebase_options.dart';
+import 'dart:developer';
 
 class RegisterView extends StatefulWidget {
-  const RegisterView({Key? key}) : super(key: key);
+  const RegisterView({super.key});
 
   @override
   State<RegisterView> createState() => _RegisterViewState();
@@ -63,28 +65,36 @@ class _RegisterViewState extends State<RegisterView> {
                         ),
                   ),
                   TextButton(
-                      onPressed: () async {
-                        final email = _email.text;
-                        final password = _password.text;
+                    onPressed: () async {
+                      final email = _email.text;
+                      final password = _password.text;
 
-                        try {
-                          final UserCredential = await FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                                  email: email, password: password);
+                      try {
+                        final userCredential = await FirebaseAuth.instance
+                            .createUserWithEmailAndPassword(
+                                email: email, password: password);
 
-                          print(UserCredential);
-                        } on FirebaseAuthException catch (e) {
-                          if (e.code == 'user-not-found') {
-                            print(
-                                "Invalid User: No user found for that email.");
-                          } else if (e.code == 'weak-password') {
-                            print("Weak Password: The password is too weak.");
-                          } else {
-                            print("Error: ${e.code}");
-                          }
+                        log(userCredential.toString());
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'user-not-found') {
+                          log(
+                              "Invalid User: No user found for that email.");
+                        } else if (e.code == 'weak-password') {
+                          log("Weak Password: The password is too weak.");
+                        } else {
+                          log("Error: ${e.code}");
                         }
-                      },
-                      child: const Text("Register")),
+                      }
+                    },
+                    child: const Text("Register")
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterView()));
+                      Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false);
+                    }, 
+                    child: const Text("Already registered? Register here")
+                  )
                 ],
               );
             default: 
