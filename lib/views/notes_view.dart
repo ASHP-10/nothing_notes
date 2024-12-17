@@ -1,12 +1,7 @@
-import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nothing_notes/constants/routes.dart';
-
-enum MenuItem {
-  logout,
-  settings
-}
+import 'package:nothing_notes/constants/enums.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -25,18 +20,20 @@ class _NotesViewState extends State<NotesView> {
         actions: [
           PopupMenuButton<MenuItem>(
             onSelected: (value) async {
-              switch(value) {
-                case MenuItem.logout: {
-                  if(await showLogOut(context)) {
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (_) => false);
+              switch (value) {
+                case MenuItem.logout:
+                  {
+                    if (await showLogOut(context)) {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.of(context)
+                          .pushNamedAndRemoveUntil(loginRoute, (_) => false);
+                    }
+                    break;
                   }
-                  break;
-                }
                 case MenuItem.settings:
-
               }
-            }, itemBuilder: (context) {
+            },
+            itemBuilder: (context) {
               return const [
                 PopupMenuItem(
                   value: MenuItem.logout,
@@ -51,33 +48,28 @@ class _NotesViewState extends State<NotesView> {
           )
         ],
       ),
-      body: Text("Notes"),    
+      body: const Text("Notes"),
     );
   }
 }
 
 Future<bool> showLogOut(BuildContext context) {
   return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Sign Out"),
-        content: const Text("Are you sure you want to Sign Out?"),
-        actions: [
-          TextButton(
-            onPressed: () => {
-              Navigator.of(context).pop(false)
-            }, 
-            child: const Text("Cancel")
-          ),
-          TextButton(
-            onPressed: () => {
-              Navigator.of(context).pop(true)
-            }, 
-            child: const Text("Yes")
-          )
-        ],
-      );
-    }
-  ).then((value) => value ?? false,);
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Sign Out"),
+          content: const Text("Are you sure you want to Sign Out?"),
+          actions: [
+            TextButton(
+                onPressed: () => {Navigator.of(context).pop(false)},
+                child: const Text("Cancel")),
+            TextButton(
+                onPressed: () => {Navigator.of(context).pop(true)},
+                child: const Text("Yes"))
+          ],
+        );
+      }).then(
+    (value) => value ?? false,
+  );
 }

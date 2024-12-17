@@ -1,9 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:nothing_notes/constants/routes.dart';
-import 'package:nothing_notes/firebase_options.dart';
+import 'package:nothing_notes/services/auth_exceptions.dart';
 import 'dart:developer';
+
+import 'package:nothing_notes/services/auth_service.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -38,9 +38,7 @@ class _LoginViewState extends State<LoginView> {
         backgroundColor: Colors.red,
       ),
       body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
+        future: AuthService.firebase().initialise(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -68,46 +66,66 @@ class _LoginViewState extends State<LoginView> {
                         final password = _password.text;
 
                         try {
-                          final userCredential = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                  email: email, password: password);
+                          await AuthService.firebase().signIn(
+                            email: email,
+                            password: password,
+                          );
 
-                          final user = userCredential.user;
+                          final user = AuthService.firebase().currentUser;
 
                           if (user != null) {
-                            if (user.emailVerified) {
+                            if (user.isEmailVerified) {
                               log("Email is verified.");
-                              Navigator.of(context).pushNamedAndRemoveUntil(mainRoute, (context) => false);
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  mainRoute, (context) => false);
                             } else {
                               log("Email is not verified.");
                               // Navigator.of(context).push(
                               //   MaterialPageRoute(
                               //     builder: (context) => const VerifyemailView())
                               // );
-                              Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (route) => false);
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  verifyEmailRoute, (route) => false);
                             }
                           }
-                        } on FirebaseAuthException catch (e) {
-                          if (e.code == 'user-not-found') {
-                            log("Invalid User: No user found for that email.");
-                          } else if (e.code == 'wrong-password') {
-                            log("Wrong Password: The password is incorrect.");
-                          } else if (e.code == 'invalid-email') {
-                            log(
-                                "Invalid Email: The email address is badly formatted.");
-                          } else {
-                            log("Error: ${e.message}");
-                          }
+                        } on UserNotFoundException {
+                          await showErrorDialog(
+                              context, "No Username found for the given email");
+                        } on UserDisabledException {
+                          await showErrorDialog(
+                              context, "User has been disaled by the admin");
+                        } on InvalidEmailException {
+                          await showErrorDialog(
+                              context, "Given email is not a valid email");
+                        } on WrongPasswordException {
+                          await showErrorDialog(context,
+                              "Wrong password or the password has not been set");
+                        } on TooManyRequestsException {
+                          await showErrorDialog(
+                              context, "Too many requests, please ");
+                        } on UserTokenExpiredException {
+                          await showErrorDialog(context, "User token expired");
+                        } on NetworkException {
+                          await showErrorDialog(context,
+                              "Please check your network connection and try again");
+                        } on InvalidCredentialException {
+                          await showErrorDialog(context,
+                              "Given password is incorrect for the email provided");
+                        } on OperationNotAllowedException {
+                          await showErrorDialog(
+                              context, "This login method is not enabled yet");
+                        } on GenericLoginException {
+                          log("Login failed");
                         }
                       },
                       child: const Text("Login")),
-                    TextButton(
+                  TextButton(
                       onPressed: () {
                         // Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterView()));
-                        Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route) => false);
-                      }, 
-                      child: const Text("Not yet registered? Register here")
-                    )
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            registerRoute, (route) => false);
+                      },
+                      child: const Text("Not yet registered? Register here"))
                 ],
               );
             default:
@@ -118,4 +136,26 @@ class _LoginViewState extends State<LoginView> {
       backgroundColor: Colors.yellow,
     );
   }
+}
+
+Future<void> showErrorDialog(
+  BuildContext context,
+  String text,
+) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("An error occured."),
+        content: Text(text),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Ok"))
+        ],
+      );
+    },
+  );
 }
