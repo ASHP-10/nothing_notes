@@ -76,26 +76,26 @@ class _RegisterViewState extends State<RegisterView> {
 
                             log(userCredential.toString());
                             await showSuccesfullyRegistered(context);
-                          } on EmailAlreadyInUseException {
+                          } on EmailAlreadyInUseAuthException {
                             showErrorDialog(context,
                                 "The specified email is already in use");
-                          } on InvalidEmailException {
+                          } on InvalidEmailAuthException {
                             showErrorDialog(context, "The email is invalid");
-                          } on OperationNotAllowedException {
+                          } on OperationNotAllowedAuthException {
                             showErrorDialog(
                                 context, "Cannot register using this method");
-                          } on WeakPasswordException {
+                          } on WeakPasswordAuthException {
                             showErrorDialog(context, "Password is too Weak");
-                          } on TooManyRequestsException {
+                          } on TooManyRequestsAuthException {
                             showErrorDialog(
                                 context, "Too many requests, please try again");
-                          } on UserTokenExpiredException {
+                          } on UserTokenExpiredAuthException {
                             showErrorDialog(
                                 context, "User refresh token is expired");
-                          } on NetworkException {
+                          } on NetworkAuthException {
                             showErrorDialog(context,
                                 "Please check your Internet connection and try again");
-                          } on GenericRegistrationException {
+                          } on GenericRegistrationAuthException {
                             log("Registeration failed");
                           }
                         },

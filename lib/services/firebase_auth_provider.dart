@@ -26,7 +26,7 @@ class FirebaseAuthProvider implements AuthProvider {
       await user.sendEmailVerification();
       return true;
     } else {
-      throw UserNotFoundException();
+      throw UserNotFoundAuthException();
     }
   }
 
@@ -37,7 +37,7 @@ class FirebaseAuthProvider implements AuthProvider {
     if (user != null) {
       await FirebaseAuth.instance.signOut();
     } else {
-      throw UserNotFoundException();
+      throw UserNotFoundAuthException();
     }
   }
 
@@ -55,29 +55,29 @@ class FirebaseAuthProvider implements AuthProvider {
       if (user != null) {
         return user;
       } else {
-        throw UserNotFoundException();
+        throw UserNotFoundAuthException();
       }
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "email-already-in-use":
-          throw EmailAlreadyInUseException();
+          throw EmailAlreadyInUseAuthException();
         case "invalid-email":
-          throw InvalidEmailException();
+          throw InvalidEmailAuthException();
         case "operation-not-allowed":
-          throw OperationNotAllowedException();
+          throw OperationNotAllowedAuthException();
         case "weak-password":
-          throw WeakPasswordException();
+          throw WeakPasswordAuthException();
         case "too-many-requests":
-          throw TooManyRequestsException();
+          throw TooManyRequestsAuthException();
         case "user-token-expired":
-          throw UserTokenExpiredException();
+          throw UserTokenExpiredAuthException();
         case "network-request-failed":
-          throw NetworkException();
+          throw NetworkAuthException();
         default:
-          throw GenericRegistrationException();
+          throw GenericRegistrationAuthException();
       }
     } catch (e) {
-      throw GenericRegistrationException();
+      throw GenericRegistrationAuthException();
     }
   }
 
@@ -94,33 +94,33 @@ class FirebaseAuthProvider implements AuthProvider {
       if (user != null) {
         return user;
       } else {
-        throw UserNotFoundException();
+        throw UserNotFoundAuthException();
       }
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "user-not-found":
-          throw UserNotFoundException();
+          throw UserNotFoundAuthException();
         case "user-disabled":
-          throw UserDisabledException();
+          throw UserDisabledAuthException();
         case "invalid-email":
-          throw InvalidCredentialException();
+          throw InvalidCredentialAuthException();
         case "wrong-password":
-          throw WrongPasswordException();
+          throw WrongPasswordAuthException();
         case "too-many-requests":
-          throw TooManyRequestsException();
+          throw TooManyRequestsAuthException();
         case "user-token-expired":
-          throw UserTokenExpiredException();
+          throw UserTokenExpiredAuthException();
         case "network-request-failed":
-          throw NetworkException();
+          throw NetworkAuthException();
         case "invalid-credential":
-          throw InvalidCredentialException();
+          throw InvalidCredentialAuthException();
         case "operation-not-allowed":
-          throw OperationNotAllowedException();
+          throw OperationNotAllowedAuthException();
         default:
-          throw GenericLoginException();
+          throw GenericLoginAuthException();
       }
     } catch (_) {
-      throw GenericLoginException();
+      throw GenericLoginAuthException();
     }
   }
 

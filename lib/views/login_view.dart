@@ -88,33 +88,33 @@ class _LoginViewState extends State<LoginView> {
                                   verifyEmailRoute, (route) => false);
                             }
                           }
-                        } on UserNotFoundException {
+                        } on UserNotFoundAuthException {
                           await showErrorDialog(
                               context, "No Username found for the given email");
-                        } on UserDisabledException {
+                        } on UserDisabledAuthException {
                           await showErrorDialog(
                               context, "User has been disaled by the admin");
-                        } on InvalidEmailException {
+                        } on InvalidEmailAuthException {
                           await showErrorDialog(
                               context, "Given email is not a valid email");
-                        } on WrongPasswordException {
+                        } on WrongPasswordAuthException {
                           await showErrorDialog(context,
                               "Wrong password or the password has not been set");
-                        } on TooManyRequestsException {
+                        } on TooManyRequestsAuthException {
                           await showErrorDialog(
                               context, "Too many requests, please ");
-                        } on UserTokenExpiredException {
+                        } on UserTokenExpiredAuthException {
                           await showErrorDialog(context, "User token expired");
-                        } on NetworkException {
+                        } on NetworkAuthException {
                           await showErrorDialog(context,
                               "Please check your network connection and try again");
-                        } on InvalidCredentialException {
+                        } on InvalidCredentialAuthException {
                           await showErrorDialog(context,
                               "Given password is incorrect for the email provided");
-                        } on OperationNotAllowedException {
+                        } on OperationNotAllowedAuthException {
                           await showErrorDialog(
                               context, "This login method is not enabled yet");
-                        } on GenericLoginException {
+                        } on GenericLoginAuthException {
                           log("Login failed");
                         }
                       },

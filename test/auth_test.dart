@@ -41,14 +41,15 @@ void main() {
         password: 'anypassword',
       );
 
-      expect(badEmailUser, throwsA(const TypeMatcher<UserNotFoundException>()));
+      expect(badEmailUser,
+          throwsA(const TypeMatcher<UserNotFoundAuthException>()));
 
       final badPasswordUser = provider.register(
         email: 'someone@bar.com',
         password: 'foobar',
       );
       expect(badPasswordUser,
-          throwsA(const TypeMatcher<WrongPasswordException>()));
+          throwsA(const TypeMatcher<WrongPasswordAuthException>()));
 
       final user = await provider.register(
         email: 'foo',
@@ -112,8 +113,8 @@ class MockAuthProvider implements AuthProvider {
     required String password,
   }) {
     if (!isInitialized) throw NotInitializedException();
-    if (email == 'foo@bar.com') throw UserNotFoundException();
-    if (password == 'foobar') throw WrongPasswordException();
+    if (email == 'foo@bar.com') throw UserNotFoundAuthException();
+    if (password == 'foobar') throw WrongPasswordAuthException();
     const user = AuthUser(isEmailVerified: false);
     _user = user;
 
@@ -123,7 +124,7 @@ class MockAuthProvider implements AuthProvider {
   @override
   Future<void> logOut() async {
     if (!isInitialized) throw NotInitializedException();
-    if (_user == null) throw UserNotFoundException();
+    if (_user == null) throw UserNotFoundAuthException();
     await Future.delayed(const Duration(seconds: 1));
     _user = null;
   }
@@ -132,7 +133,7 @@ class MockAuthProvider implements AuthProvider {
   Future<bool> emailVerification() async {
     if (!isInitialized) throw NotInitializedException();
     final user = _user;
-    if (user == null) throw UserNotFoundException();
+    if (user == null) throw UserNotFoundAuthException();
     const newUser = AuthUser(isEmailVerified: true);
     _user = newUser;
 
