@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_notes/services/auth_service.dart';
 import 'package:nothing_notes/views/login_view.dart';
-import 'package:nothing_notes/views/notes_view.dart';
 
 class HomepageView extends StatefulWidget {
   const HomepageView({super.key});
