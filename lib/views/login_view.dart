@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_notes/constants/routes.dart';
-import 'package:nothing_notes/services/auth_exceptions.dart';
+import 'package:nothing_notes/constants/Exceptions/auth_exceptions.dart';
 import 'dart:developer';
-
 import 'package:nothing_notes/services/auth_service.dart';
+import 'package:nothing_notes/services/navigation_service.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -37,125 +37,105 @@ class _LoginViewState extends State<LoginView> {
         title: const Text("Login"),
         backgroundColor: Colors.red,
       ),
-      body: FutureBuilder(
-        future: AuthService.firebase().initialise(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return Column(
-                children: [
-                  TextField(
-                    controller: _email,
-                    enableSuggestions: false,
-                    keyboardType: TextInputType.emailAddress,
-                    autocorrect: false,
-                    decoration: const InputDecoration(
-                        hintText: "Enter your email. eg: hello@nothing.com"),
-                  ),
-                  TextField(
-                    obscureText: true,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    controller: _password,
-                    decoration:
-                        const InputDecoration(hintText: "Enter your password"),
-                  ),
-                  TextButton(
-                      onPressed: () async {
-                        final email = _email.text;
-                        final password = _password.text;
+      body: Column(
+        children: [
+          TextField(
+            controller: _email,
+            enableSuggestions: false,
+            keyboardType: TextInputType.emailAddress,
+            autocorrect: false,
+            decoration: const InputDecoration(
+                hintText: "Enter your email. eg: hello@nothing.com"),
+          ),
+          TextField(
+            obscureText: true,
+            enableSuggestions: false,
+            autocorrect: false,
+            controller: _password,
+            decoration: const InputDecoration(hintText: "Enter your password"),
+          ),
+          TextButton(
+              onPressed: () async {
+                final email = _email.text;
+                final password = _password.text;
 
-                        try {
-                          await AuthService.firebase().signIn(
-                            email: email,
-                            password: password,
-                          );
+                try {
+                  await AuthService.firebase().signIn(
+                    email: email,
+                    password: password,
+                  );
 
-                          final user = AuthService.firebase().currentUser;
+                  final user = AuthService.firebase().currentUser;
 
-                          if (user != null) {
-                            if (user.isEmailVerified) {
-                              log("Email is verified.");
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                  mainRoute, (context) => false);
-                            } else {
-                              log("Email is not verified.");
-                              // Navigator.of(context).push(
-                              //   MaterialPageRoute(
-                              //     builder: (context) => const VerifyemailView())
-                              // );
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                  verifyEmailRoute, (route) => false);
-                            }
-                          }
-                        } on UserNotFoundAuthException {
-                          await showErrorDialog(
-                              context, "No Username found for the given email");
-                        } on UserDisabledAuthException {
-                          await showErrorDialog(
-                              context, "User has been disaled by the admin");
-                        } on InvalidEmailAuthException {
-                          await showErrorDialog(
-                              context, "Given email is not a valid email");
-                        } on WrongPasswordAuthException {
-                          await showErrorDialog(context,
-                              "Wrong password or the password has not been set");
-                        } on TooManyRequestsAuthException {
-                          await showErrorDialog(
-                              context, "Too many requests, please ");
-                        } on UserTokenExpiredAuthException {
-                          await showErrorDialog(context, "User token expired");
-                        } on NetworkAuthException {
-                          await showErrorDialog(context,
-                              "Please check your network connection and try again");
-                        } on InvalidCredentialAuthException {
-                          await showErrorDialog(context,
-                              "Given password is incorrect for the email provided");
-                        } on OperationNotAllowedAuthException {
-                          await showErrorDialog(
-                              context, "This login method is not enabled yet");
-                        } on GenericLoginAuthException {
-                          log("Login failed");
-                        }
-                      },
-                      child: const Text("Login")),
-                  TextButton(
-                      onPressed: () {
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterView()));
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                            registerRoute, (route) => false);
-                      },
-                      child: const Text("Not yet registered? Register here"))
-                ],
-              );
-            default:
-              return const Text("Loading...");
-          }
-        },
+                  if (user != null) {
+                    if (user.isEmailVerified) {
+                      log("Email is verified.");
+                      await NavigationService.navigateAndRemoveUntil(mainRoute);
+                    } else {
+                      log("Email is not verified.");
+                      await NavigationService.navigateTo(verifyEmailRoute);
+                    }
+                  }
+                } on UserNotFoundAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "No Username found for the given email",
+                  );
+                } on UserDisabledAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "User has been disabled by the admin",
+                  );
+                } on InvalidEmailAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Given email is not a valid email",
+                  );
+                } on WrongPasswordAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Wrong password or the password has not been set",
+                  );
+                } on TooManyRequestsAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Too many requests, please try again later",
+                  );
+                } on UserTokenExpiredAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "User token expired",
+                  );
+                } on NetworkAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Please check your network connection and try again",
+                  );
+                } on InvalidCredentialAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Given password is incorrect for the email provided",
+                  );
+                } on OperationNotAllowedAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "This login method is not enabled yet",
+                  );
+                } on GenericLoginAuthException {
+                  log("Login failed");
+                }
+              },
+              child: const Text("Login")),
+          TextButton(
+              onPressed: () {
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterView()));
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil(registerRoute, (route) => false);
+              },
+              child: const Text("Not yet registered? Register here"))
+        ],
       ),
       backgroundColor: Colors.yellow,
     );
   }
-}
-
-Future<void> showErrorDialog(
-  BuildContext context,
-  String text,
-) {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("An error occured."),
-        content: Text(text),
-        actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Ok"))
-        ],
-      );
-    },
-  );
 }

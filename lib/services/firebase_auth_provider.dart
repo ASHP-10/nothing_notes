@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:nothing_notes/firebase_options.dart';
 import 'package:nothing_notes/services/auth_user.dart';
 import 'package:nothing_notes/services/auth_provider.dart';
-import 'package:nothing_notes/services/auth_exceptions.dart';
+import 'package:nothing_notes/constants/Exceptions/auth_exceptions.dart';
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
 
@@ -76,7 +76,7 @@ class FirebaseAuthProvider implements AuthProvider {
         default:
           throw GenericRegistrationAuthException();
       }
-    } catch (e) {
+    } catch (_) {
       throw GenericRegistrationAuthException();
     }
   }

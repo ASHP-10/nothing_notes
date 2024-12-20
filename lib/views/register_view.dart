@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_notes/constants/routes.dart';
-import 'package:nothing_notes/services/auth_exceptions.dart';
+import 'package:nothing_notes/constants/Exceptions/auth_exceptions.dart';
 import 'dart:developer';
-
+import 'package:nothing_notes/services/navigation_service.dart';
 import 'package:nothing_notes/services/auth_service.dart';
 
 class RegisterView extends StatefulWidget {
@@ -37,127 +37,93 @@ class _RegisterViewState extends State<RegisterView> {
         title: const Text("Registration"),
         backgroundColor: Colors.red,
       ),
-      body: FutureBuilder(
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                return Column(
-                  children: [
-                    TextField(
-                      controller: _email,
-                      enableSuggestions: false,
-                      keyboardType: TextInputType.emailAddress,
-                      autocorrect: false,
-                      decoration: const InputDecoration(
-                          hintText: "Enter your email. eg: hello@nothing.com",
-                          hintStyle: TextStyle(color: Colors.red)),
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    TextField(
-                      obscureText: true,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      controller: _password,
-                      decoration: const InputDecoration(
-                          hintText: "Enter your password",
-                          hintStyle: TextStyle(color: Colors.red)),
-                    ),
-                    TextButton(
-                        onPressed: () async {
-                          final email = _email.text;
-                          final password = _password.text;
+      body: Column(
+        children: [
+          TextField(
+            controller: _email,
+            enableSuggestions: false,
+            keyboardType: TextInputType.emailAddress,
+            autocorrect: false,
+            decoration: const InputDecoration(
+                hintText: "Enter your email. eg: hello@nothing.com",
+                hintStyle: TextStyle(color: Colors.red)),
+            style: const TextStyle(color: Colors.red),
+          ),
+          TextField(
+            obscureText: true,
+            enableSuggestions: false,
+            autocorrect: false,
+            controller: _password,
+            decoration: const InputDecoration(
+                hintText: "Enter your password",
+                hintStyle: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+              onPressed: () async {
+                final email = _email.text;
+                final password = _password.text;
 
-                          try {
-                            final userCredential =
-                                await AuthService.firebase().register(
-                              email: email,
-                              password: password,
-                            );
+                try {
+                  final userCredential = await AuthService.firebase().register(
+                    email: email,
+                    password: password,
+                  );
 
-                            log(userCredential.toString());
-                            await showSuccesfullyRegistered(context);
-                          } on EmailAlreadyInUseAuthException {
-                            showErrorDialog(context,
-                                "The specified email is already in use");
-                          } on InvalidEmailAuthException {
-                            showErrorDialog(context, "The email is invalid");
-                          } on OperationNotAllowedAuthException {
-                            showErrorDialog(
-                                context, "Cannot register using this method");
-                          } on WeakPasswordAuthException {
-                            showErrorDialog(context, "Password is too Weak");
-                          } on TooManyRequestsAuthException {
-                            showErrorDialog(
-                                context, "Too many requests, please try again");
-                          } on UserTokenExpiredAuthException {
-                            showErrorDialog(
-                                context, "User refresh token is expired");
-                          } on NetworkAuthException {
-                            showErrorDialog(context,
-                                "Please check your Internet connection and try again");
-                          } on GenericRegistrationAuthException {
-                            log("Registeration failed");
-                          }
-                        },
-                        child: const Text("Register")),
-                    TextButton(
-                        onPressed: () {
-                          // Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterView()));
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              loginRoute, (route) => false);
-                        },
-                        child: const Text("Already registered? Register here"))
-                  ],
-                );
-              default:
-                return const Text("Loading...");
-            }
-          },
-          future: AuthService.firebase().initialise()),
+                  log(userCredential.toString());
+                  await NavigationService.defaultPopUpDialog(
+                    "Successfully Registered",
+                  );
+                  NavigationService.navigateAndRemoveUntil(loginRoute);
+                } on EmailAlreadyInUseAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "The specified email is already in use",
+                  );
+                } on InvalidEmailAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "The email is invalid",
+                  );
+                } on OperationNotAllowedAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Cannot register using this method",
+                  );
+                } on WeakPasswordAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Password is too Weak",
+                  );
+                } on TooManyRequestsAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Too many requests, please try again",
+                  );
+                } on UserTokenExpiredAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "User refresh token is expired",
+                  );
+                } on NetworkAuthException {
+                  await NavigationService.defaultPopUpDialog(
+                    "An Error Occured",
+                    "Please check your Internet connection and try again",
+                  );
+                } on GenericRegistrationAuthException {
+                  log("Registeration failed");
+                }
+              },
+              child: const Text("Register")),
+          TextButton(
+              onPressed: () {
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterView()));
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil(loginRoute, (route) => false);
+              },
+              child: const Text("Already registered? login here"))
+        ],
+      ),
       backgroundColor: Colors.black,
     );
   }
-}
-
-Future<void> showSuccesfullyRegistered(BuildContext context) {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Registration"),
-        content: const Text("Successfully registered"),
-        actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil(loginRoute, (_) => false);
-              },
-              child: const Text("OK"))
-        ],
-      );
-    },
-  );
-}
-
-Future<void> showErrorDialog(
-  BuildContext context,
-  String text,
-) {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("An error occured."),
-        content: Text(text),
-        actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Ok"))
-        ],
-      );
-    },
-  );
 }
