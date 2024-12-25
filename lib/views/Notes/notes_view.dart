@@ -34,6 +34,12 @@ class _NotesViewState extends State<NotesView> {
         title: const Text("My Notes"),
         backgroundColor: Colors.redAccent,
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(newNoteRoute);
+            },
+            icon: const Icon(Icons.add),
+          ),
           PopupMenuButton<MenuItem>(
             onSelected: (value) async {
               switch (value) {

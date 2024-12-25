@@ -84,17 +84,22 @@ class NotesService {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
 
-    final results = await db.query(
-      userTableName,
-      limit: 1,
-      where: 'email = ?',
-      whereArgs: [email.toLowerCase()],
-    );
+    try {
+      final results = await db.query(
+        userTableName,
+        limit: 1,
+        where: 'email = ?',
+        whereArgs: [email.toLowerCase()],
+      );
 
-    if (results.isEmpty) {
-      throw CouldNotFindUserException();
-    } else {
-      return DatabaseUser.fromRow(results.first);
+      if (results.isEmpty) {
+        return await createUser(email: email);
+      } else {
+        final user = DatabaseUser.fromRow(results.first);
+        return user;
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 

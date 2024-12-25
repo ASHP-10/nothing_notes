@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_notes/constants/routes.dart';
-import 'package:nothing_notes/services/auth_exceptions.dart';
+import 'package:nothing_notes/constants/Exceptions/auth_exceptions.dart';
 import 'dart:developer';
 
 import 'package:nothing_notes/services/auth_service.dart';
