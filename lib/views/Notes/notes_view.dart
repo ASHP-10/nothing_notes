@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:nothing_notes/constants/routes.dart';
 import 'package:nothing_notes/constants/enums.dart';
 import 'package:nothing_notes/services/auth_service.dart';
-import 'package:nothing_notes/services/navigation_service.dart';
 import 'package:nothing_notes/services/notes_service.dart';
 
 class NotesView extends StatefulWidget {
@@ -37,11 +36,25 @@ class _NotesViewState extends State<NotesView> {
         actions: [
           IconButton(
             onPressed: () {
-              NavigationService.navigateTo(newNoteRoute);
+              Navigator.of(context).pushNamed(newNoteRoute);
             },
             icon: const Icon(Icons.add),
           ),
           PopupMenuButton<MenuItem>(
+            onSelected: (value) async {
+              switch (value) {
+                case MenuItem.logout:
+                  {
+                    if (await showLogOut(context)) {
+                      await AuthService.firebase().logOut();
+                      Navigator.of(context)
+                          .pushNamedAndRemoveUntil(loginRoute, (_) => false);
+                    }
+                    break;
+                  }
+                case MenuItem.settings:
+              }
+            },
             itemBuilder: (context) {
               return const [
                 PopupMenuItem(
@@ -53,20 +66,6 @@ class _NotesViewState extends State<NotesView> {
                   child: Text("Settings"),
                 )
               ];
-            },
-            onSelected: (value) async {
-              switch (value) {
-                case MenuItem.logout:
-                  {
-                    if (await logOutPopUpDialog(context)) {
-                      //await _notesService.close();
-                      await AuthService.firebase().logOut();
-                      NavigationService.navigateAndRemoveUntil(loginRoute);
-                    }
-                    break;
-                  }
-                case MenuItem.settings:
-              }
             },
           )
         ],
@@ -81,10 +80,8 @@ class _NotesViewState extends State<NotesView> {
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
-                      return const Text(
-                        "Waiting for all notes",
-                        style: TextStyle(color: Colors.white),
-                      );
+                    case ConnectionState.active:
+                      return const Text('Waiting for all notes...');
                     default:
                       return const CircularProgressIndicator();
                   }
@@ -95,12 +92,11 @@ class _NotesViewState extends State<NotesView> {
           }
         },
       ),
-      backgroundColor: Colors.black,
     );
   }
 }
 
-Future<bool> logOutPopUpDialog(BuildContext context) {
+Future<bool> showLogOut(BuildContext context) {
   return showDialog<bool>(
       context: context,
       builder: (context) {

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nothing_notes/constants/routes.dart';
-import 'package:nothing_notes/views/homepage_view.dart';
+import 'package:nothing_notes/views/Notes/new_note_view.dart';
 import 'package:nothing_notes/views/login_view.dart';
-import 'package:nothing_notes/views/notes/new_notes_view.dart';
-import 'package:nothing_notes/views/notes/notes_view.dart';
+import 'package:nothing_notes/views/Notes/notes_view.dart';
 import 'package:nothing_notes/views/register_view.dart';
 import 'package:nothing_notes/views/verifyemail_view.dart';
 
@@ -18,13 +17,13 @@ void main() {
       primarySwatch: Colors.blue,
       brightness: Brightness.light,
     ),
-    home: const HomepageView(),
+    home: const LoginView(),
     routes: {
       loginRoute: (context) => const LoginView(),
       registerRoute: (context) => const RegisterView(),
       verifyEmailRoute: (context) => const VerifyemailView(),
       mainRoute: (context) => const NotesView(),
-      newNoteRoute: (context) => const NewNotesView(),
+      newNoteRoute: (context) => const NewNoteView(),
     },
   ));
 }

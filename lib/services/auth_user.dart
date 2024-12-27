@@ -6,11 +6,8 @@ class AuthUser {
   final bool isEmailVerified;
   final String? email;
 
-  const AuthUser({
-    required this.email,
-    required this.isEmailVerified,
-  }); // main constructor
-
+  const AuthUser(
+      {required this.email, required this.isEmailVerified}); // main constructor
   factory AuthUser.fromFirebase(User user) => AuthUser(
         isEmailVerified: user.emailVerified,
         email: user.email,
